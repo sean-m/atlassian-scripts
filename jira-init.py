@@ -1,12 +1,12 @@
 #!/usr/bin/python
 #
-# Init script skeleton for Python-based service control scripts
+# Init script for JIRA
 #
 # chkconfig: 123456 1 99
 # description: JIRA init script
 #
-# Author: Josh Johnson 
-#
+# Original Author: Josh Johnson
+# Author: Sean McArdle
 #
 ### BEGIN INIT INFO
 # Provides: JIRA
@@ -55,7 +55,7 @@ def start():
 
         lock()
     else:        
-       print('JIRA already running')
+        print('Service locked, check status')
         
 
 def stop():
