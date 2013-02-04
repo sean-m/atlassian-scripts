@@ -20,36 +20,39 @@
 
 import sys, os, subprocess, re, time
 
+APP_NAME = 'JIRA'
 APP_DIR='/data/jira_main/jira-std/'
+APP_START = 'bin/start-jira.sh'
+APP_STOP = 'bin/stop-jira.sh'
 
 def lock():
     """
     Create the /var/lock/subsys file
     """
-    open('/var/lock/subsys/jira', 'w').close()
+    open('/var/lock/subsys/' + APP_NAME, 'w').close()
     
 def locked():
     """
     Return True if the lock file exists
     """
-    return os.path.exists('/var/lock/subsys/jira')
+    return os.path.exists('/var/lock/subsys/' + APP_NAME)
     
 def unlock():
     """
     Remove the /var/lock/subsys file
     """
-    os.remove('/var/lock/subsys/jira')
+    os.remove('/var/lock/subsys/' + APP_NAME)
 
 def start():
     count = 0
 
     if not locked():
-        print('Starting JIRA...')
+        print('Starting ' + APP_NAME + '...')
 
         try:
-            subprocess.check_call(APP_DIR + 'bin/start-jira.sh', shell=False)
+            subprocess.check_call(APP_DIR + APP_START , shell=False)
         except:
-            print('There was an error starting JIRA')
+            print('There was an error starting ' + APP_NAME)
             return subprocess.returncode
 
         lock()
@@ -61,14 +64,24 @@ def stop():
     """
     Shut everything down, clean up.
     """
-    print('Stopping JIRA...')
+
+    if locked():            
+        print('Stopping ' + APP_NAME + '...')
+        try:
+            subprocess.check_call(APP_DIR + APP_STOP, shell=False)
+            unlock()
+        except:
+            print('There was an error stopping ' + APP_NAME)
+            return subprocess.returncode
+    else:
+        print('No process lock, check status')
+        
 
 def restart():
     """
     Stop and then start
     """
-    stop()
-    lock()
+    stop()    
     start()
     
 def status():
