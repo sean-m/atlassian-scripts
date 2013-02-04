@@ -21,7 +21,6 @@
 import sys, os, subprocess, re, time
 
 APP_DIR='/data/jira_main/jira-std/'
-APP_USER='jira'
 
 def lock():
     """
