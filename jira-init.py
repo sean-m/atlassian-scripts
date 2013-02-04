@@ -42,12 +42,21 @@ def unlock():
     os.remove('/var/lock/subsys/jira')
 
 def start():
-    """
-    Do whatever needs to be done.. this is where you start any applications,
-    mount filesystems, etc.
-    """
-    print('Starting JIRA...')
+    count = 0
 
+    if not locked():
+        print('Starting JIRA...')
+
+        try:
+            subprocess.check_call(APP_DIR + 'bin/start-jira.sh', shell=False)
+        except:
+            print('There was an error starting JIRA')
+            return subprocess.returncode
+
+        lock()
+    else:        
+       print('JIRA already running')
+        
 
 def stop():
     """
@@ -79,16 +88,43 @@ def status():
     
     @see: http://dev.linux-foundation.org/betaspecs/booksets/LSB-Core-generic/LSB-Core-generic/iniscrptact.html
     """
-    if not locked():
-        # this is dubious! if you're controlling another process, you should check its
-        # PID file or use some other means.. consider this an example
-        print "STATUS: Program isn't running"
-        return 3
-    else:
-    	if isAlive:
-	        print "STATUS: Everything is A-OK"
-	        return 0
 
+    pidPath = APP_DIR + 'work/catalina.pid'
+
+    if locked():
+        if os.path.exists(pidPath):
+            pid = open(pidPath, 'r').readline()
+            if isALive(pid):
+                return 0
+            else:
+                unlock()
+                return 1
+        else:
+            return 2
+    else:
+        if os.path.exists(pidPath):
+            pid = open(pidPath, 'r').readline()
+            if isAlive(pid):
+                lock()
+                return 0
+            else:
+                return 1
+        else:
+            return 3
+    	
+
+def isALive(pid):
+    '''
+    Check for pid file, and if the pid is legit.
+    os.kill(pid, 0) does not kill the process and throws and exception if it
+    doesn't exist.
+    '''
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except:            
+        return False
+    
 def test():
     """
     This is my way of "unit testing" the script. This function
@@ -158,11 +194,6 @@ Are you sure you want to do this? [Y/N]: """
     status()
 
 
-def isALive():
-	if os.path.exists(APP_DIR + 'work/catalina.pid'):
-		return True
-	else:
-		return False
 
 # Main program switchboard - wrap everything in a try block to
 # ensure the right return code is sent to the shell, and keep things tidy.
@@ -180,13 +211,11 @@ if __name__ == '__main__':
             
         action = str(sys.argv[1]).strip().lower()
         
-        if action == 'start':
-            lock()
+        if action == 'start':            
             start()
             sys.exit(0)
         elif action == 'stop':
-            stop()
-            unlock()
+            stop()            
             sys.exit(0)
         elif action == 'restart' or action == 'force-reload':
             restart()
