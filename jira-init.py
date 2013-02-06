@@ -29,6 +29,9 @@ def lock():
     """
     Create the /var/lock/subsys file
     """
+    if not os.path.exists('/var/lock/subsys/'):
+        os.makedirs('/var/lock/subsys/')
+
     open('/var/lock/subsys/' + APP_NAME, 'w').close()
     
 def locked():
@@ -43,10 +46,22 @@ def unlock():
     """
     os.remove('/var/lock/subsys/' + APP_NAME)
 
+def isAlive(pid):
+    '''
+    os.kill(pid, 0) does not kill the process and throws and exception if it
+    doesn't exist.
+    '''
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except:            
+        return False
+
+
 def start():
     count = 0
 
-    if not locked():
+    if not locked() and status() != 0:
         print('Starting ' + APP_NAME + '...')
 
         try:
@@ -56,8 +71,9 @@ def start():
             return subprocess.returncode
 
         lock()
+        status()
     else:        
-        print('Service locked, check status')
+        print('Service locked, check status.')
         
 
 def stop():
@@ -73,8 +89,9 @@ def stop():
         except:
             print('There was an error stopping ' + APP_NAME)
             return subprocess.returncode
+        status()
     else:
-        print('No process lock, check status')
+        print('No process lock, check status.')
         
 
 def restart():
@@ -106,36 +123,29 @@ def status():
     if locked():
         if os.path.exists(pidPath):
             pid = open(pidPath, 'r').readline()
-            if isALive(pid):
+            if isAlive(pid):
+                print('Processs running on pid: ' + str(pid))
                 return 0
             else:
+                print('Process not found, stale pid file exists.')
                 unlock()
                 return 1
         else:
+            print('Can not find process although lock file exists.')
             return 2
     else:
         if os.path.exists(pidPath):
             pid = open(pidPath, 'r').readline()
             if isAlive(pid):
                 lock()
+                print('Processs running on pid: ' + str(pid))
                 return 0
             else:
+                print('Process not found, stale pid file exists.')
                 return 1
         else:
+            print(APP_NAME + ' is not running.')
             return 3
-    	
-
-def isALive(pid):
-    '''
-    Check for pid file, and if the pid is legit.
-    os.kill(pid, 0) does not kill the process and throws and exception if it
-    doesn't exist.
-    '''
-    try:
-        os.kill(int(pid), 0)
-        return True
-    except:            
-        return False
     
 def test():
     """
@@ -215,6 +225,10 @@ Are you sure you want to do this? [Y/N]: """
 #
 # @TODO: put lock/unlock calls inside of start/stop?
 if __name__ == '__main__':
+    # if not root...kick out
+    if not os.geteuid()==0:
+        sys.exit("\nOnly root can run this script\n")
+
     try:
         # if there's fewer than 2 options on the command line 
         # (sys.argv[0] is the program name)
