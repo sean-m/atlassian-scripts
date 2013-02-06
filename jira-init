@@ -5,7 +5,6 @@
 # chkconfig: 123456 1 99
 # description: JIRA init script
 #
-# Original Author: Josh Johnson
 # Author: Sean McArdle
 #
 ### BEGIN INIT INFO
@@ -20,8 +19,11 @@
 
 import sys, os, subprocess, re, time
 
+'''
+Adjust the following values to fit your application
+'''
 APP_NAME = 'JIRA'
-APP_DIR='/data/jira_main/jira-std/'
+APP_DIR = '/data/jira_main/jira-std/'
 APP_START = 'bin/start-jira.sh'
 APP_STOP = 'bin/stop-jira.sh'
 
@@ -62,7 +64,8 @@ def start():
     if not locked():
         print('Starting ' + APP_NAME + '...')
         try:
-            init = subprocess.check_output(APP_DIR + APP_START, shell=False, stderr=subprocess.STDOUT)
+            init = subprocess.check_output(APP_DIR + APP_START, shell = False,
+                                           stderr = subprocess.STDOUT)
             lock()
         except subprocess.CalledProcessError, e:
             print('There was an error starting ' + APP_NAME)
@@ -81,7 +84,8 @@ def stop():
     if locked():
         print('Stopping ' + APP_NAME + '...')
         try:
-            init = subprocess.check_output(APP_DIR + APP_STOP, shell=False, stderr=subprocess.STDOUT)
+            init = subprocess.check_output(APP_DIR + APP_STOP, shell = False,
+                                           stderr = subprocess.STDOUT)
             unlock()
         except subprocess.CalledProcessError, e:
             print('There was an error stopping ' + APP_NAME)
