@@ -59,18 +59,16 @@ def isAlive(pid):
 
 
 def start():
-    count = 0
-
-    if not locked() and status() != 0:
+    if not locked():
         print('Starting ' + APP_NAME + '...')
-
         try:
-            init = subprocess.check_call(APP_DIR + APP_START , shell=False)
-        except:
+            init = subprocess.check_output(APP_DIR + APP_START, shell=False, stderr=subprocess.STDOUT)
+            lock()
+        except subprocess.CalledProcessError, e:
             print('There was an error starting ' + APP_NAME)
-            return init.returncode
+            print(e.output)
+            return e.returncode
 
-        lock()
         status()
     else:        
         print('Service locked, check status.')
@@ -80,15 +78,16 @@ def stop():
     """
     Shut everything down, clean up.
     """
-
-    if locked():            
+    if locked():
         print('Stopping ' + APP_NAME + '...')
         try:
-            subprocess.check_call(APP_DIR + APP_STOP, shell=False)
+            init = subprocess.check_output(APP_DIR + APP_STOP, shell=False, stderr=subprocess.STDOUT)
             unlock()
-        except:
+        except subprocess.CalledProcessError, e:
             print('There was an error stopping ' + APP_NAME)
-            return subprocess.returncode
+            print(e.output)
+            return e.returncode
+       
         status()
     else:
         print('No process lock, check status.')
