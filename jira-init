@@ -10,10 +10,10 @@
 #
 ### BEGIN INIT INFO
 # Provides: JIRA
-# Required-Start: mysql
-# Required-Stop: 
-# Default-Start:  123456
-# Default-Stop:  123456
+# Required-Start: mysql networking
+# Required-Stop: mysql networking
+# Default-Start:  3 4 5 6
+# Default-Stop:  0 1 6
 # Short-Description: JIRA issue tracker
 # Description: Web based project/issue tracking
 ### END INIT INFO
@@ -65,10 +65,10 @@ def start():
         print('Starting ' + APP_NAME + '...')
 
         try:
-            subprocess.check_call(APP_DIR + APP_START , shell=False)
+            init = subprocess.check_call(APP_DIR + APP_START , shell=False)
         except:
             print('There was an error starting ' + APP_NAME)
-            return subprocess.returncode
+            return init.returncode
 
         lock()
         status()
@@ -124,7 +124,7 @@ def status():
         if os.path.exists(pidPath):
             pid = open(pidPath, 'r').readline()
             if isAlive(pid):
-                print('Processs running on pid: ' + str(pid))
+                print('Processs ' + APP_NAME + ' running on pid: ' + str(pid))
                 return 0
             else:
                 print('Process not found, stale pid file exists.')
@@ -259,7 +259,7 @@ if __name__ == '__main__':
         # calls to sys.exit() raise this error :(
         pass
     except (ValueError):
-        print >> sys.stderr, "Usage: my-service [start|stop|restart|force-reload|status|test]"
+        print >> sys.stderr, "Usage: " + sys.argv[0] + " [start|stop|restart|status]"
         # return 2 for "bad command line option"
         sys.exit(2)
     except:
