@@ -24,8 +24,7 @@ Adjust the following values to fit your application
 '''
 APP_NAME = 'JIRA'
 APP_DIR = '/data/jira_main/jira-std/'
-#APP_START = 'bin/start-jira.sh'
-APP_START = './error.sh'
+APP_START = 'bin/start-jira.sh'
 APP_STOP = 'bin/stop-jira.sh'
 
 def lock():
