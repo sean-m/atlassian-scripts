@@ -1,19 +1,19 @@
 #!/usr/bin/python
 #
-# Init script for JIRA
+# Init script for CONFLUENCE
 #
 # chkconfig: 123456 1 99
-# description: JIRA init script
+# description: CONFLUENCE init script
 #
 # Author: Sean McArdle
 #
 ### BEGIN INIT INFO
-# Provides: JIRA
+# Provides: CONFLUENCE
 # Required-Start: $local_fs mysql networking
 # Required-Stop: mysql networking
 # Default-Start:  3 5
 # Default-Stop:  0 1 2 6
-# Short-Description: JIRA issue tracker
+# Short-Description: CONFLUENCE issue tracker
 # Description: Web based project/issue tracking
 ### END INIT INFO
 
@@ -43,10 +43,11 @@ if "check_output" not in dir( subprocess ): # duck punch it in!
 '''
 Adjust the following values to fit your application
 '''
-APP_NAME = 'JIRA'
-APP_DIR = '/data/jira_main/jira-std/'
-APP_START = APP_DIR + 'bin/start-jira.sh'
-APP_STOP = APP_DIR + 'bin/stop-jira.sh'
+APP_NAME = 'CONFLUENCE'
+APP_DIR = '/data/confluence/confluence-3.5.16-std/'
+APP_START = APP_DIR + 'bin/start-wiki.sh'
+APP_STOP = APP_DIR + 'bin/shutdown.sh'
+PID_PATH = APP_DIR + 'work/catalina.pid'
 
 def lock():
     """
@@ -152,11 +153,9 @@ def status():
     @see: http://dev.linux-foundation.org/betaspecs/booksets/LSB-Core-generic/LSB-Core-generic/iniscrptact.html
     """
 
-    pidPath = APP_DIR + 'work/catalina.pid'
-
     if locked():
-        if os.path.exists(pidPath):
-            pid = open(pidPath, 'r').readline()
+        if os.path.exists(PID_PATH):
+            pid = open(PID_PATH, 'r').readline()
             if isAlive(pid):
                 print('Processs ' + APP_NAME + ' running on pid: ' + str(pid))
                 return 0
@@ -168,8 +167,8 @@ def status():
             print('Can not find process although lock file exists.')
             return 2
     else:
-        if os.path.exists(pidPath):
-            pid = open(pidPath, 'r').readline()
+        if os.path.exists(PID_PATH):
+            pid = open(PID_PATH, 'r').readline()
             if isAlive(pid):
                 lock()
                 print('Processs running on pid: ' + str(pid))
