@@ -64,6 +64,7 @@ def start():
     if not locked():
         print('Starting ' + APP_NAME + '...')
         try:
+            procOut = ''
             proc = subprocess.Popen([APP_START], stdout=subprocess.PIPE, 
                                     stderr=subprocess.STDOUT, shell=False)
             procOut = proc.communicate()[0]            
