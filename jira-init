@@ -22,6 +22,7 @@ import sys, os, subprocess, re, time
 
 '''
 Monkey-patch for subprocess.check_output from Python 2.7
+From: https://gist.github.com/edufelipe/1027906
 '''
 if "check_output" not in dir( subprocess ): # duck punch it in!
     def f(*popenargs, **kwargs):
