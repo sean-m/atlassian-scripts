@@ -44,8 +44,8 @@ Adjust the following values to fit your application
 '''
 APP_NAME = 'JIRA'
 APP_DIR = '/data/jira_main/jira-std/'
-APP_START = 'bin/startup.sh'
-APP_STOP = 'bin/shutdown.sh'
+APP_START = APP_DIR + 'bin/start-jira.sh'
+APP_STOP = APP_DIR + 'bin/stop-jira.sh'
 
 def lock():
     """
@@ -79,12 +79,18 @@ def isAlive(pid):
     except:            
         return False
 
+def file_check(file):
+    return os.path.exists(file)
 
-def start():
+def start():    
+    if not file_check(APP_START):
+        print('file: ' + APP_START + ' does not exist!')
+        return 1
+
     if not locked():
         print('Starting ' + APP_NAME + '...')
         try:
-            init = subprocess.check_output(APP_DIR + APP_START, shell = False,
+            init = subprocess.check_output(APP_START, shell = False,
                                            stderr = subprocess.STDOUT)
             lock()
         except subprocess.CalledProcessError, e:
@@ -101,10 +107,14 @@ def stop():
     """
     Shut everything down, clean up.
     """
+    if not file_check(APP_STOP):
+        print('file: ' + APP_STOP + ' does not exist!')
+        return 1
+
     if locked():
         print('Stopping ' + APP_NAME + '...')
         try:
-            init = subprocess.check_output(APP_DIR + APP_STOP, shell = False,
+            init = subprocess.check_output(APP_STOP, shell = False,
                                            stderr = subprocess.STDOUT)
             unlock()
         except subprocess.CalledProcessError, e:
