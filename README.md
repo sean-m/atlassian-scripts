@@ -14,4 +14,4 @@ Python library for detecting the width of the current terminal.
 
 
 
-The scripts are heavily modified but based on the blog post found <http://lionfacelemonface.wordpress.com/2009/12/29/python-init-scripts/>.
+The scripts are heavily modified but based on the blog post found here: <http://lionfacelemonface.wordpress.com/2009/12/29/python-init-scripts/>.
